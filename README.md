@@ -1,4 +1,4 @@
-# :package_description
+# laravel-airtable
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/axeldotdev/laravel-airtable.svg?style=flat-square)](https://packagist.org/packages/axeldotdev/laravel-airtable)
 [![Total Downloads](https://img.shields.io/packagist/dt/axeldotdev/laravel-airtable.svg?style=flat-square)](https://packagist.org/packages/axeldotdev/laravel-airtable)
