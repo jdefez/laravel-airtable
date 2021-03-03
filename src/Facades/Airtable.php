@@ -1,6 +1,6 @@
 <?php
 
-namespace AxelDotDev\LaravelAirtable;
+namespace AxelDotDev\LaravelAirtable\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
