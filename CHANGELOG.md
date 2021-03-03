@@ -17,3 +17,7 @@ All notable changes to laravel-airtable will be documented in this file.
 ## 0.3.1 - 2021-03-03
 
 - Fix facade namespace
+
+## 0.3.2 - 2021-03-03
+
+- Fix uri /

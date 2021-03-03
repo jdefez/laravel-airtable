@@ -161,7 +161,7 @@ class Airtable
             $response = $response->withHeaders($headers);
         }
 
-        $response = $response->$method($uri . '/' . $this->base . $endpoint, $data);
+        $response = $response->$method($uri . $this->base . $endpoint, $data);
 
         $response->throw();
 
