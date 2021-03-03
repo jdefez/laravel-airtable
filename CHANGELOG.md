@@ -10,6 +10,6 @@ All notable changes to laravel-airtable will be documented in this file.
 
 - Fix facade
 
-## 0.2.0 - 2021-03-02
+## 0.3.0 - 2021-03-03
 
 - Move facade and rename LaravelAirtable to Airtable
