@@ -8,26 +8,38 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use stdClass;
 
-class LaravelAirtable
+class Airtable
 {
     const GET = 'get';
     const POST = 'post';
     const PATCH = 'patch';
     const DELETE = 'delete';
 
+    protected $app;
+
     /**
      * The Airtable base
      *
      * @var string
      */
-    public string $base;
+    protected string $base;
 
     /**
      * The airtable base table
      *
      * @var string
      */
-    public string $table;
+    protected string $table;
+
+    /**
+     * Construct object
+     *
+     * @return void
+     */
+    public function __construct($app)
+    {
+        $this->app = $app;
+    }
 
     /**
      * Define the base and the table
@@ -137,8 +149,11 @@ class LaravelAirtable
      */
     private function request(string $method, string $endpoint = '', array $data = [], array $headers = []): Response
     {
-        $uri = config('laravel-airtable.uri');
-        $key = config('laravel-airtable.key');
+        $uri = $this->app['config']['laravel-airtable.uri'];
+        $key = $this->app['config']['laravel-airtable.key'];
+
+        if (is_null($uri) || is_null($key)) {
+        }
 
         $response = Http::withToken($key);
 

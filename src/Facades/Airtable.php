@@ -5,12 +5,12 @@ namespace AxelDotDev\LaravelAirtable;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @see \AxelDotDev\LaravelAirtable\LaravelAirtable
+ * @see \AxelDotDev\LaravelAirtable\Airtable
  */
-class LaravelAirtableFacade extends Facade
+class Airtable extends Facade
 {
     protected static function getFacadeAccessor()
     {
-        return 'laravel-airtable';
+        return 'airtable';
     }
 }

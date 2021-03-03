@@ -1,7 +1,7 @@
 {
     "name": "axeldotdev/laravel-airtable",
     "description": "laravel-airtable allows you to import your Airtable data into your Laravel database.",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "keywords": [
         "axeldotdev",
         "laravel-airtable"
@@ -50,7 +50,7 @@
                 "AxelDotDev\\LaravelAirtable\\LaravelAirtableServiceProvider"
             ],
             "aliases": {
-                "LaravelAirtable": "AxelDotDev\\LaravelAirtable\\LaravelAirtableFacade"
+                "Airtable": "AxelDotDev\\LaravelAirtable\\Facades\\Airtable"
             }
         }
     },

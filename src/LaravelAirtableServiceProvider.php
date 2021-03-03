@@ -19,8 +19,8 @@ class LaravelAirtableServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/laravel-airtable.php', 'laravel-airtable');
 
-        $this->app->bind('laravel-airtable', function($app) {
-            return new LaravelAirtable();
+        $this->app->bind('airtable', function($app) {
+            return new Airtable($app);
         });
     }
 }
