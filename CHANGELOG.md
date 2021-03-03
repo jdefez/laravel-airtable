@@ -21,3 +21,7 @@ All notable changes to laravel-airtable will be documented in this file.
 ## 0.3.2 - 2021-03-03
 
 - Fix uri /
+
+## 0.3.3 - 2021-03-03
+
+- Fix api request and table urlencode string

@@ -52,7 +52,7 @@ class Airtable
     public function base(string $base, string $table): self
     {
         $this->base = $base;
-        $this->table = $table;
+        $this->table = rawurlencode($table);
 
         return $this;
     }
@@ -161,7 +161,7 @@ class Airtable
             $response = $response->withHeaders($headers);
         }
 
-        $response = $response->$method($uri . $this->base . $endpoint, $data);
+        $response = $response->$method($uri . $this->base . '/' . $this->table . $endpoint, $data);
 
         $response->throw();
 
