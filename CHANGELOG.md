@@ -29,3 +29,7 @@ All notable changes to laravel-airtable will be documented in this file.
 ## 0.3.4 - 2021-03-04
 
 - Remove records index from returned collection
+
+## 0.3.5 - 2021-03-04
+
+- Transform array data into object in collections
