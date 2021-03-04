@@ -33,3 +33,7 @@ All notable changes to laravel-airtable will be documented in this file.
 ## 0.3.5 - 2021-03-04
 
 - Transform array data into object in collections
+
+## 0.3.6 - 2021-03-04
+
+- Fix bug collection data
