@@ -25,3 +25,7 @@ All notable changes to laravel-airtable will be documented in this file.
 ## 0.3.3 - 2021-03-03
 
 - Fix api request and table urlencode string
+
+## 0.3.4 - 2021-03-04
+
+- Remove records index from returned collection

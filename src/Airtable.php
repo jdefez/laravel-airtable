@@ -68,7 +68,7 @@ class Airtable
     {
         $response = $this->request(self::GET, '?maxRecords=500&view=Grid%20view');
 
-        return $response->collect();
+        return $response['records']->collect();
     }
 
     /**
@@ -100,7 +100,7 @@ class Airtable
     {
         $response = $this->request(self::POST, '', ['records' => $data], ['Content-Type' => 'application/json']);
 
-        return $response->collect();
+        return $response['records']->collect();
     }
 
     /**
@@ -116,7 +116,7 @@ class Airtable
     {
         $response = $this->request(self::PATCH, '', ['records' => $data], ['Content-Type' => 'application/json']);
 
-        return $response->collect();
+        return $response['records']->collect();
     }
 
     /**
@@ -132,7 +132,7 @@ class Airtable
     {
         $response = $this->request(self::DELETE, '', ['records' => $data]);
 
-        return $response->collect();
+        return $response['records']->collect();
     }
 
     /**
