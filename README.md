@@ -1,9 +1,15 @@
-# laravel-airtable
+<h1><center>Laravel Airtable</center></h1>
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/axeldotdev/laravel-airtable.svg?style=flat-square)](https://packagist.org/packages/axeldotdev/laravel-airtable)
-[![Total Downloads](https://img.shields.io/packagist/dt/axeldotdev/laravel-airtable.svg?style=flat-square)](https://packagist.org/packages/axeldotdev/laravel-airtable)
+<p align="center">
+  <a href="https://github.com/laravel-airtable/framework/actions"><img src="https://img.shields.io/github/workflow/status/laravel-airtable/framework/Tests.svg" alt="Build Status"></img></a>
+  <a href="https://packagist.org/packages/laravel-airtable/framework"><img src="https://img.shields.io/packagist/dt/laravel-airtable/framework.svg" alt="Total Downloads"></a>
+  <a href="https://packagist.org/packages/laravel-airtable/framework"><img src="https://img.shields.io/packagist/v/laravel-airtable/framework.svg?label=stable" alt="Latest Stable Version"></a>
+  <a href="https://packagist.org/packages/laravel-airtable/framework"><img src="https://img.shields.io/packagist/l/laravel-airtable/framework.svg" alt="License"></a>
+</p>
 
-laravel-airtable allows you to import your Airtable data into your Laravel database.
+Laravel Airtable allows you to import your Airtable data into your Laravel database.
+
+------
 
 ## Installation
 
@@ -39,7 +45,7 @@ return [
 
 ## Usage
 
-???
+In progress 🚧
 
 ## Testing
 
@@ -61,7 +67,7 @@ Please review [our security policy](../../security/policy) on how to report secu
 
 ## Credits
 
-- [:author_name](https://github.com/axeldotdev)
+- [Axel Charpentier](https://github.com/axeldotdev)
 - [All Contributors](../../contributors)
 
 ## License
