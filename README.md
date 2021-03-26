@@ -43,7 +43,7 @@ return [
 ];
 ```
 
-## Usage
+## Documentation
 
 In progress 🚧
 
