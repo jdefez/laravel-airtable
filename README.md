@@ -1,10 +1,10 @@
 <h1><center>Laravel Airtable</center></h1>
 
 <p align="center">
-  <a href="https://github.com/laravel-airtable/framework/actions"><img src="https://img.shields.io/github/workflow/status/laravel-airtable/framework/Tests.svg" alt="Build Status"></img></a>
-  <a href="https://packagist.org/packages/laravel-airtable/framework"><img src="https://img.shields.io/packagist/dt/laravel-airtable/framework.svg" alt="Total Downloads"></a>
-  <a href="https://packagist.org/packages/laravel-airtable/framework"><img src="https://img.shields.io/packagist/v/laravel-airtable/framework.svg?label=stable" alt="Latest Stable Version"></a>
-  <a href="https://packagist.org/packages/laravel-airtable/framework"><img src="https://img.shields.io/packagist/l/laravel-airtable/framework.svg" alt="License"></a>
+  <a href="https://github.com/axeldotdev/laravel-airtable/actions"><img src="https://img.shields.io/github/workflow/status/axeldotdev/laravel-airtable/Tests.svg" alt="Build Status"></img></a>
+  <a href="https://packagist.org/packages/axeldotdev/laravel-airtable"><img src="https://img.shields.io/packagist/dt/axeldotdev/laravel-airtable.svg" alt="Total Downloads"></a>
+  <a href="https://packagist.org/packages/axeldotdev/laravel-airtable"><img src="https://img.shields.io/packagist/v/axeldotdev/laravel-airtable.svg?label=stable" alt="Latest Stable Version"></a>
+  <a href="https://packagist.org/packages/axeldotdev/laravel-airtable"><img src="https://img.shields.io/packagist/l/axeldotdev/laravel-airtable.svg" alt="License"></a>
 </p>
 
 Laravel Airtable allows you to import your Airtable data into your Laravel database.
