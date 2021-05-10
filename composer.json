@@ -1,7 +1,7 @@
 {
     "name": "axeldotdev/laravel-airtable",
     "description": "laravel-airtable allows you to import your Airtable data into your Laravel database.",
-    "version": "0.3.6",
+    "version": "1.0.0",
     "keywords": [
         "axeldotdev",
         "laravel-airtable"

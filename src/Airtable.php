@@ -64,13 +64,31 @@ class Airtable
      *
      * @throws BindingResolutionException
      */
-    public function all(): Collection
+    public function all(int $page_delay = 200000): Collection
     {
-        $response = $this->request(self::GET, '?maxRecords=500&view=Grid%20view');
+        $offset = null;
+        $records = collect();
 
-        $records = collect($response->collect()['records']);
+        do {
+            $response = is_null($offset)
+                ? $this->request(self::GET, '?view=Grid%20view')
+                : $this->request(self::GET, '?offset=' . $offset . 'view=Grid%20view');
 
-        return $records->map(fn ($record) => (object) $record);
+            $response = $response->collect();
+
+            if (isset($response['records'])) {
+                $records = $records->merge($response['records']);
+            }
+
+            if (isset($response['offset'])) {
+                $offset = $response['offset'];
+                usleep($page_delay);
+            } else {
+                $offset = null;
+            }
+        } while ($offset);
+
+        return $records;
     }
 
     /**
