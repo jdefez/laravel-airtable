@@ -64,15 +64,15 @@ class Airtable
      *
      * @throws BindingResolutionException
      */
-    public function all(int $page_delay = 200000): Collection
+    public function all(string $view = 'Grid%20view', int $page_delay = 200000): Collection
     {
-        $offset = null;
+        $offset = false;
         $records = collect();
 
         do {
-            $response = is_null($offset)
-                ? $this->request(self::GET, '?view=Grid%20view')
-                : $this->request(self::GET, '?offset=' . $offset . 'view=Grid%20view');
+            $response = ! $offset
+                ? $this->request(self::GET, '?view=' . $view)
+                : $this->request(self::GET, '?offset=' . $offset . '&view=' . $view);
 
             $response = $response->collect();
 
@@ -84,7 +84,7 @@ class Airtable
                 $offset = $response['offset'];
                 usleep($page_delay);
             } else {
-                $offset = null;
+                $offset = false;
             }
         } while ($offset);
 
