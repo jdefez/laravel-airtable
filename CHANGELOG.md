@@ -37,3 +37,19 @@ All notable changes to laravel-airtable will be documented in this file.
 ## 0.3.6 - 2021-03-04
 
 - Fix bug collection data
+
+## 1.0.0 - 2021-05-10
+
+- Fetch all records on multiple pages
+
+## 1.0.1 - 2021-05-10
+
+- Fix all() method with offset params
+
+## 1.0.2 - 2021-05-10
+
+- Fix all() method with offset params
+
+## 1.0.3 - 2021-05-10
+
+- Fix all() method with offset params
