@@ -88,7 +88,7 @@ class Airtable
             }
         } while ($offset);
 
-        return $records;
+        return $records->map(fn ($record) => (object) $record);
     }
 
     /**
