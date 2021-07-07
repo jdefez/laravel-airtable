@@ -8,8 +8,11 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use stdClass;
 
-class Airtable
+class Airtable implements Airtableable
 {
+
+    // todo: use package orchestra/testbench
+    // https://packages.tools/testbench/getting-started/introduction.html
     const GET = 'get';
     const POST = 'post';
     const PATCH = 'patch';
@@ -38,6 +41,8 @@ class Airtable
      */
     public function __construct($app)
     {
+        // todo: this may not be necessary
+
         $this->app = $app;
     }
 
@@ -52,6 +57,13 @@ class Airtable
     public function base(string $base, string $table): self
     {
         $this->base = $base;
+        $this->table = rawurlencode($table);
+
+        return $this;
+    }
+
+    public function setTable(string $table): self
+    {
         $this->table = rawurlencode($table);
 
         return $this;
@@ -118,7 +130,12 @@ class Airtable
      */
     public function create(array $data): Collection
     {
-        $response = $this->request(self::POST, '', ['records' => $data], ['Content-Type' => 'application/json']);
+        $response = $this->request(
+            self::POST,
+            '',
+            ['records' => $data],
+            ['Content-Type' => 'application/json']
+        );
 
         $records = collect($response->collect()['records']);
 
@@ -136,7 +153,12 @@ class Airtable
      */
     public function update(array $data): Collection
     {
-        $response = $this->request(self::PATCH, '', ['records' => $data], ['Content-Type' => 'application/json']);
+        $response = $this->request(
+            self::PATCH,
+            '',
+            ['records' => $data],
+            ['Content-Type' => 'application/json']
+        );
 
         $records = collect($response->collect()['records']);
 
@@ -173,8 +195,12 @@ class Airtable
      *
      * @throws BindingResolutionException
      */
-    private function request(string $method, string $endpoint = '', array $data = [], array $headers = []): Response
-    {
+    private function request(
+        string $method,
+        string $endpoint = '',
+        array $data = [],
+        array $headers = []
+    ): Response {
         $uri = $this->app['config']['laravel-airtable.uri'];
         $key = $this->app['config']['laravel-airtable.key'];
 
@@ -187,7 +213,10 @@ class Airtable
             $response = $response->withHeaders($headers);
         }
 
-        $response = $response->$method($uri . $this->base . '/' . $this->table . $endpoint, $data);
+        $response = $response->$method(
+            $uri . $this->base . '/' . $this->table . $endpoint,
+            $data
+        );
 
         $response->throw();
 
