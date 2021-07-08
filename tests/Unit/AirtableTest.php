@@ -1,8 +1,8 @@
 <?php
 
-namespace Package\Skeleton\Tests;
+namespace AxelDotDev\LaravelAirtable\Tests;
 
-class ExampleTest extends TestCase
+class AirtableTest extends TestCase
 {
     /** @test */
     public function true_is_true()
