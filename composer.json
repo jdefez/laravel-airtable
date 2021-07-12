@@ -27,7 +27,7 @@
     },
     "autoload": {
         "psr-4": {
-            "AxelDotDev\\LaravelAirtable\\Tests": "tests",
+            "AxelDotDev\\LaravelAirtable\\Tests\\": "tests",
             "AxelDotDev\\LaravelAirtable\\": "src",
             "AxelDotDev\\LaravelAirtable\\Database\\Factories\\": "database/factories"
         }
