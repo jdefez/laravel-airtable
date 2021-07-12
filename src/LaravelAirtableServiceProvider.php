@@ -17,12 +17,13 @@ class LaravelAirtableServiceProvider extends ServiceProvider
 
     public function register()
     {
-        $this->app->bind(Airtableable::class, Airtable::class);
-
         $this->mergeConfigFrom(__DIR__ . '/../config/laravel-airtable.php', 'laravel-airtable');
 
         $this->app->bind('airtable', function($app) {
-            return new Airtable($app);
+            return new Airtable(
+                config('laravel-airtable.uri'),
+                config('laravel-airtable.key'),
+            );
         });
     }
 }

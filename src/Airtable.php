@@ -3,22 +3,19 @@
 namespace AxelDotDev\LaravelAirtable;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Http;
 use stdClass;
 
 class Airtable implements Airtableable
 {
-
-    // todo: use package orchestra/testbench
-    // https://packages.tools/testbench/getting-started/introduction.html
     const GET = 'get';
     const POST = 'post';
     const PATCH = 'patch';
     const DELETE = 'delete';
 
-    protected $app;
+    //protected $app;
 
     /**
      * The Airtable base
@@ -35,15 +32,19 @@ class Airtable implements Airtableable
     protected string $table;
 
     /**
-     * Construct object
-     *
-     * @return void
+     * @var string
      */
-    public function __construct($app)
-    {
-        // todo: this may not be necessary
+    private string $uri;
 
-        $this->app = $app;
+    /**
+     * @var string
+     */
+    private string $key;
+
+    public function __construct(string $uri, string $key)
+    {
+        $this->uri = $uri;
+        $this->key = $key;
     }
 
     /**
@@ -54,7 +55,7 @@ class Airtable implements Airtableable
      *
      * @return LaravelAirtable
      */
-    public function base(string $base, string $table): self
+    public function base(string $base, string $table): Airtableable
     {
         $this->base = $base;
         $this->table = rawurlencode($table);
@@ -62,7 +63,7 @@ class Airtable implements Airtableable
         return $this;
     }
 
-    public function setTable(string $table): self
+    public function setTable(string $table): Airtableable
     {
         $this->table = rawurlencode($table);
 
@@ -201,20 +202,21 @@ class Airtable implements Airtableable
         array $data = [],
         array $headers = []
     ): Response {
-        $uri = $this->app['config']['laravel-airtable.uri'];
-        $key = $this->app['config']['laravel-airtable.key'];
+        //$uri = $this->app['config']['laravel-airtable.uri'];
+        //$key = $this->app['config']['laravel-airtable.key'];
 
-        if (is_null($uri) || is_null($key)) {
+        // todo: move elsewhere
+        if (is_null($this->uri) || is_null($this->key)) {
         }
 
-        $response = Http::withToken($key);
+        $response = Http::withToken($this->key);
 
         if (! empty($headers)) {
             $response = $response->withHeaders($headers);
         }
 
         $response = $response->$method(
-            $uri . $this->base . '/' . $this->table . $endpoint,
+            $this->uri . $this->base . '/' . $this->table . $endpoint,
             $data
         );
 
