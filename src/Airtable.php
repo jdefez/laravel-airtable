@@ -163,12 +163,12 @@ class Airtable implements Airtableable
      *
      * @throws BindingResolutionException
      */
-    public function create(array $data): Collection
+    public function create(array $records): Collection
     {
         $response = $this->request(
             self::POST,
             '',
-            ['records' => $data],
+            compact('records'),
             ['Content-Type' => 'application/json']
         )->object();
 
@@ -185,12 +185,12 @@ class Airtable implements Airtableable
      *
      * @throws BindingResolutionException
      */
-    public function update(array $data): Collection
+    public function update(array $records): Collection
     {
         $response = $this->request(
             self::PATCH,
             '',
-            ['records' => $data],
+            compact('records'),
             ['Content-Type' => 'application/json']
         )->object();
 
@@ -207,12 +207,12 @@ class Airtable implements Airtableable
      *
      * @throws BindingResolutionException
      */
-    public function delete(array $data): Collection
+    public function delete(array $records): Collection
     {
         $response = $this->request(
             self::DELETE,
             '',
-            ['records' => $data]
+            compact('records')
         )->object();
 
         return collect($response->records)
@@ -271,9 +271,9 @@ class Airtable implements Airtableable
         array $data = [],
         array $headers = []
     ): Response {
+        // Todo: This check might not be usefull since airtable uri and key
+        // have to be provided to the constructor
         if (is_null($this->uri) || is_null($this->key)) {
-            // Todo: This check might not be usefull since airtable uri and key since
-            // they have to be provided to the constructor
         }
 
         $response = Http::withToken($this->key);
