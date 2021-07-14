@@ -17,16 +17,18 @@
     ],
     "require": {
         "php": "^7.4|^8.0",
+        "guzzlehttp/guzzle": "^7.3",
         "illuminate/contracts": "^8.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.17",
-        "orchestra/testbench": "^6.0",
+        "orchestra/testbench": "^6.19",
         "phpunit/phpunit": "^9.3",
         "vimeo/psalm": "^4.3"
     },
     "autoload": {
         "psr-4": {
+            "AxelDotDev\\LaravelAirtable\\Tests\\": "tests",
             "AxelDotDev\\LaravelAirtable\\": "src",
             "AxelDotDev\\LaravelAirtable\\Database\\Factories\\": "database/factories"
         }

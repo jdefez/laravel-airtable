@@ -3,22 +3,19 @@
 namespace AxelDotDev\LaravelAirtable;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Http;
 use stdClass;
 
 class Airtable implements Airtableable
 {
+    public const GET = 'get';
+    public const POST = 'post';
+    public const PATCH = 'patch';
+    public const DELETE = 'delete';
 
-    // todo: use package orchestra/testbench
-    // https://packages.tools/testbench/getting-started/introduction.html
-    const GET = 'get';
-    const POST = 'post';
-    const PATCH = 'patch';
-    const DELETE = 'delete';
-
-    protected $app;
+    //protected $app;
 
     /**
      * The Airtable base
@@ -35,15 +32,19 @@ class Airtable implements Airtableable
     protected string $table;
 
     /**
-     * Construct object
-     *
-     * @return void
+     * @var string
      */
-    public function __construct($app)
-    {
-        // todo: this may not be necessary
+    private string $uri;
 
-        $this->app = $app;
+    /**
+     * @var string
+     */
+    private string $key;
+
+    public function __construct(string $uri, string $key)
+    {
+        $this->uri = $uri;
+        $this->key = $key;
     }
 
     /**
@@ -54,7 +55,7 @@ class Airtable implements Airtableable
      *
      * @return LaravelAirtable
      */
-    public function base(string $base, string $table): self
+    public function base(string $base, string $table): Airtableable
     {
         $this->base = $base;
         $this->table = rawurlencode($table);
@@ -62,7 +63,7 @@ class Airtable implements Airtableable
         return $this;
     }
 
-    public function setTable(string $table): self
+    public function setTable(string $table): Airtableable
     {
         $this->table = rawurlencode($table);
 
@@ -89,7 +90,7 @@ class Airtable implements Airtableable
             $response = $response->collect();
 
             if (isset($response['records'])) {
-                $records = $records->merge($response['records']);
+                $records = $records->push(...$response['records']);
             }
 
             if (isset($response['offset'])) {
@@ -101,6 +102,32 @@ class Airtable implements Airtableable
         } while ($offset);
 
         return $records->map(fn ($record) => (object) $record);
+    }
+
+    public function iterator(string $view = 'Grid view', int $page_delay = 200000)
+    {
+        $offset = false;
+
+        do {
+            $response = ! $offset
+                ? $this->request(self::GET, '', compact('view'))
+                : $this->request(self::GET, '', compact('view', 'offset'));
+
+            $response = $response->collect();
+
+            if (isset($response['records'])) {
+                foreach ($response['records'] as $record) {
+                    yield (object) $record;
+                }
+            }
+
+            if (isset($response['offset'])) {
+                $offset = $response['offset'];
+                usleep($page_delay);
+            } else {
+                $offset = false;
+            }
+        } while ($offset);
     }
 
     /**
@@ -201,20 +228,19 @@ class Airtable implements Airtableable
         array $data = [],
         array $headers = []
     ): Response {
-        $uri = $this->app['config']['laravel-airtable.uri'];
-        $key = $this->app['config']['laravel-airtable.key'];
-
-        if (is_null($uri) || is_null($key)) {
+        if (is_null($this->uri) || is_null($this->key)) {
+            // todo: move elsewhere to be able to send some feed back on what's
+            // happening here.
         }
 
-        $response = Http::withToken($key);
+        $response = Http::withToken($this->key);
 
         if (! empty($headers)) {
             $response = $response->withHeaders($headers);
         }
 
         $response = $response->$method(
-            $uri . $this->base . '/' . $this->table . $endpoint,
+            $this->uri . $this->base . '/' . $this->table . $endpoint,
             $data
         );
 
