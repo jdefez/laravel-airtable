@@ -9,11 +9,13 @@ class AirtableTest extends TestCase
 {
     public Airtableable $airtable;
 
+    // todo: test all methods
+
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->airtable = Airtable::base(env('AIRTABLE_BASE'), 'Languages');
+        $this->airtable = Airtable::base(env('AIRTABLE_BASE'));
     }
 
     /** @test */
@@ -25,7 +27,7 @@ class AirtableTest extends TestCase
     /** @test */
     public function get_method_returns_all_records()
     {
-        $records = $this->airtable->all();
+        $records = $this->airtable->table('Languages')->all();
         $this->assertNotEmpty($records);
     }
 
@@ -33,7 +35,8 @@ class AirtableTest extends TestCase
     public function iterator_method_returns_all_records()
     {
         $records = [];
-        foreach ($this->airtable->iterator() as $record) {
+        $iterator = $this->airtable->table('Languages')->iterator();
+        foreach ($iterator as $record) {
             $records[] = $record->id;
         }
         $this->assertNotEmpty($records);

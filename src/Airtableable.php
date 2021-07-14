@@ -3,11 +3,14 @@
 namespace AxelDotDev\LaravelAirtable;
 
 use Illuminate\Support\Collection;
+use Generator;
 use stdClass;
 
 interface Airtableable
 {
-    public function setTable(string $table): Airtableable;
+    public function table(string $table): Airtableable;
+
+    public function view(string $view): Airtableable;
 
     public function update(array $data): Collection;
 
@@ -15,11 +18,11 @@ interface Airtableable
 
     public function delete(array $data): Collection;
 
-    public function base(string $base, string $table): Airtableable;
+    public function base(string $base): Airtableable;
 
     public function find(string $id): stdClass;
 
-    public function all(string $view = 'Grid view', int $page_delay = 200000): Collection;
+    public function all(): Collection;
 
-    public function iterator(string $view = 'Grid view', int $page_delay = 200000);
+    public function iterator(): Generator;
 }
