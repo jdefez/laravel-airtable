@@ -6,6 +6,36 @@ use AxelDotDev\LaravelAirtable\Facades\Airtable;
 use AxelDotDev\LaravelAirtable\Airtableable;
 use Illuminate\Foundation\Testing\WithFaker;
 
+/**
+ * To run this tests you have to:
+ *
+ *  1. Create your own aritable table named 'Test'.
+ *   It should have:
+ *     - a column named 'Name'
+ *     - and it s view name should be 'Grid view'
+ *
+ *  2. Create and Configure ./phpunit.xml file. It should contain:
+ *
+ * <coverage>
+ *   <include>
+ *     <directory suffix=".php">src/</directory>
+ *   </include>
+ * </coverage>
+ * <testsuites>
+ *   <testsuite name="Unit">
+ *     <directory suffix="Test.php">tests/Unit</directory>
+ *   </testsuite>
+ *   <testsuite name="Feature">
+ *     <directory suffix="Test.php">tests/Feature</directory>
+ *   </testsuite>
+ * </testsuites>
+ * <php>
+ *   <env name="AIRTABLE_BASE" value="xxxxxxxxxxxxxxxxx"/>
+ *   <env name="AIRTABLE_KEY" value="xxxxxxxxxxxxxxxxxx"/>
+ *   <env name="APP_KEY" value="xxxxxxxxxxxxxxxxxxxxxxx"/>
+ * </php>
+ */
+
 class AirtableTest extends TestCase
 {
     use WithFaker;
@@ -53,6 +83,13 @@ class AirtableTest extends TestCase
     }
 
     /** @test */
+    public function get_method_returns_all_records()
+    {
+        $records = $this->airtable->table(self::TABLE)->all();
+        $this->assertNotEmpty($records);
+    }
+
+    /** @test */
     public function it_updates_records()
     {
         $records = collect();
@@ -84,7 +121,6 @@ class AirtableTest extends TestCase
     /** @test */
     public function it_deletes_records()
     {
-        // todo fix
         $records = collect();
         $iterator = $this->airtable->table(self::TABLE)->iterator();
         foreach ($iterator as $record) {
@@ -95,34 +131,10 @@ class AirtableTest extends TestCase
         $records->chunk(10)
             ->each(
                 function ($chunk) use (&$deleted) {
-                    //echo PHP_EOL;
-                    //dump($chunk->values()->toArray());
                     $records = $this->airtable->delete($chunk->values()->toArray());
                     $deleted = $deleted->merge($records);
                 }
             );
         $this->assertCount($records->count(), $deleted);
-    }
-
-    /** @test */
-    public function get_method_returns_all_records()
-    {
-        // todo generate many records
-        $records = $this->airtable->table(self::TABLE)->all();
-        $this->assertNotEmpty($records);
-        // todo delete many records
-    }
-
-    /** @test */
-    public function iterator_method_returns_all_records()
-    {
-        // todo generate many records
-        $records = [];
-        $iterator = $this->airtable->table(self::TABLE)->iterator();
-        foreach ($iterator as $record) {
-            $records[] = $record->id;
-        }
-        $this->assertNotEmpty($records);
-        // todo delete many records
     }
 }

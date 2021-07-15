@@ -11,6 +11,10 @@ use stdClass;
 
 class Airtable implements Airtableable
 {
+    // todo:
+    //   - create, update or delete method should not store anything. This could
+    //   be done by yielding response results
+
     public const GET = 'get';
     public const POST = 'post';
     public const PATCH = 'patch';
@@ -157,7 +161,7 @@ class Airtable implements Airtableable
     /**
      * Create one or many records
      *
-     * @param array $data
+     * @param array $records up to ten records
      *
      * @return Collection
      *
@@ -179,7 +183,7 @@ class Airtable implements Airtableable
     /**
      * Update one or many records
      *
-     * @param array $data
+     * @param array $records up to 10 records
      *
      * @return Collection
      *
@@ -201,7 +205,7 @@ class Airtable implements Airtableable
     /**
      * Delete one or many records
      *
-     * @param array $data
+     * @param array $records
      *
      * @return Collection
      *
@@ -209,14 +213,17 @@ class Airtable implements Airtableable
      */
     public function delete(array $records): Collection
     {
-        $response = $this->request(
-            self::DELETE,
-            '',
-            compact('records')
-        )->object();
+        // Note: batch deleting on Airtable API is simply not working we have
+        //  to loop over each records
 
-        return collect($response->records)
-            ->map(fn ($record) => (object) $record);
+        $deleted = collect();
+        foreach ($records as $id) {
+            $response = $this->request(self::DELETE, '/' . $id)->object();
+
+            $deleted->push($response->id);
+        }
+
+        return $deleted;
     }
 
     /**
@@ -271,11 +278,6 @@ class Airtable implements Airtableable
         array $data = [],
         array $headers = []
     ): Response {
-        // Todo: This check might not be usefull since airtable uri and key
-        // have to be provided to the constructor
-        if (is_null($this->uri) || is_null($this->key)) {
-        }
-
         $response = Http::withToken($this->key);
 
         if (! empty($headers)) {
