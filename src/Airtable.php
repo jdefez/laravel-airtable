@@ -2,22 +2,23 @@
 
 namespace AxelDotDev\LaravelAirtable;
 
+use AxelDotDev\LaravelAirtable\Parameters\Parameters;
+use Generator;
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Collection;
-use Generator;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use stdClass;
 
 class Airtable implements Airtableable
 {
-    // todo:
-    //   - create, update or delete method should not store anything. This could
-    //   be done by yielding response results
-
     public const GET = 'get';
+
     public const POST = 'post';
+
     public const PATCH = 'patch';
+
     public const DELETE = 'delete';
 
     /**
@@ -64,7 +65,8 @@ class Airtable implements Airtableable
 
     public function __construct(string $uri, string $key)
     {
-        $this->uri = $uri;
+        $this->parameters = new Parameters();
+        $this->uri = ! Str::of($uri)->endsWith('/') ? $uri . '/' : $uri;
         $this->key = $key;
     }
 
@@ -76,7 +78,7 @@ class Airtable implements Airtableable
      *
      * @return LaravelAirtable
      */
-    public function base(string $base): Airtableable
+    public function base(string $base): self
     {
         $this->base = $base;
 
@@ -90,7 +92,7 @@ class Airtable implements Airtableable
      *
      * @return Airtableable
      */
-    public function table(string $table): Airtableable
+    public function table(string $table): self
     {
         $this->table = rawurlencode($table);
 
@@ -101,11 +103,26 @@ class Airtable implements Airtableable
      * Set the Airtable table view name
      *
      * @param string $view
+     *
      * @return Airtableable
      */
-    public function view(string $view): Airtableable
+    public function view(string $view): self
     {
         $this->view = $view;
+
+        return $this;
+    }
+
+    /**
+     * Set the time in microseconds to wait between two requests
+     *
+     * @param int $delay
+     *
+     * @return Airtableable
+     */
+    public function pageDelay(int $delay): self
+    {
+        $this->page_delay = $delay;
 
         return $this;
     }
@@ -121,8 +138,7 @@ class Airtable implements Airtableable
     {
         $records = collect();
 
-        $iterator = $this->walk();
-        foreach ($iterator as $record) {
+        foreach ($this->walk() as $record) {
             $records->push($record);
         }
 
@@ -138,8 +154,7 @@ class Airtable implements Airtableable
      */
     public function iterator(): Generator
     {
-        $iterator = $this->walk(fn ($record) => $record);
-        foreach ($iterator as $record) {
+        foreach ($this->walk() as $record) {
             yield $record;
         }
     }
@@ -155,7 +170,7 @@ class Airtable implements Airtableable
      */
     public function find(string $id): stdClass
     {
-        return (object) $this->request(self::GET, '/' . $id)->json();
+        return (object) $this->request(self::GET, '/' . $id)->object();
     }
 
     /**
@@ -163,21 +178,18 @@ class Airtable implements Airtableable
      *
      * @param array $records up to ten records
      *
-     * @return Collection
+     * @return Generator
      *
      * @throws BindingResolutionException
      */
-    public function create(array $records): Collection
+    public function create(array $records): Generator
     {
-        $response = $this->request(
-            self::POST,
-            '',
-            compact('records'),
-            ['Content-Type' => 'application/json']
-        )->object();
+        $response = $this->request(self::POST, '', compact('records'))
+            ->object();
 
-        return collect($response->records)
-            ->map(fn ($record) => (object) $record);
+        foreach ($response->records as $records) {
+            yield (object) $records;
+        }
     }
 
     /**
@@ -185,21 +197,18 @@ class Airtable implements Airtableable
      *
      * @param array $records up to 10 records
      *
-     * @return Collection
+     * @return Generator
      *
      * @throws BindingResolutionException
      */
-    public function update(array $records): Collection
+    public function update(array $records): Generator
     {
-        $response = $this->request(
-            self::PATCH,
-            '',
-            compact('records'),
-            ['Content-Type' => 'application/json']
-        )->object();
+        $response = $this->request(self::PATCH, '', compact('records'))
+            ->object();
 
-        return collect($response->records)
-            ->map(fn ($record) => (object) $record);
+        foreach ($response->records as $records) {
+            yield (object) $records;
+        }
     }
 
     /**
@@ -207,23 +216,15 @@ class Airtable implements Airtableable
      *
      * @param array $records
      *
-     * @return Collection
+     * @return Generator
      *
      * @throws BindingResolutionException
      */
-    public function delete(array $records): Collection
+    public function delete(array $records): Generator
     {
-        // Note: batch deleting on Airtable API is simply not working we have
-        //  to loop over each records
-
-        $deleted = collect();
         foreach ($records as $id) {
-            $response = $this->request(self::DELETE, '/' . $id)->object();
-
-            $deleted->push($response->id);
+            yield $this->request(self::DELETE, '/' . $id)->object();
         }
-
-        return $deleted;
     }
 
     /**
@@ -266,7 +267,6 @@ class Airtable implements Airtableable
      * @param string $method
      * @param string $endpoint
      * @param array  $data
-     * @param array  $headers
      *
      * @return Response
      *
@@ -276,21 +276,16 @@ class Airtable implements Airtableable
         string $method,
         string $endpoint = '',
         array $data = [],
-        array $headers = []
     ): Response {
-        $response = Http::withToken($this->key);
+        return Http::acceptJson()
+            ->withHeaders(['Content-Type' => 'application/json'])
+            ->withToken($this->key)
+            ->{$method}($this->getUri($endpoint), $data)
+            ->throw();
+    }
 
-        if (! empty($headers)) {
-            $response = $response->withHeaders($headers);
-        }
-
-        $response = $response->$method(
-            $this->uri . $this->base . '/' . $this->table . $endpoint,
-            $data
-        );
-
-        $response->throw();
-
-        return $response;
+    private function getUri(string $endpoint)
+    {
+        return $this->uri . $this->base . '/' . $this->table . $endpoint;
     }
 }

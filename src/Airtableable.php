@@ -12,11 +12,11 @@ interface Airtableable
 
     public function view(string $view): Airtableable;
 
-    public function update(array $data): Collection;
+    public function update(array $data): Generator;
 
-    public function create(array $data): Collection;
+    public function create(array $data): Generator;
 
-    public function delete(array $data): Collection;
+    public function delete(array $data): Generator;
 
     public function base(string $base): Airtableable;
 
