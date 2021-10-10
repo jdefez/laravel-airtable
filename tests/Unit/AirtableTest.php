@@ -29,16 +29,16 @@ class AirtableTest extends TestCase
     }
 
     /** @test */
-    public function it_creates_records()
-    {
-        $this->markTestIncomplete('todo implement');
-    }
-
-    /** @test */
     public function get_method_returns_all_records()
     {
         $this->markTestIncomplete('todo implement');
         //$this->airtable->all();
+    }
+
+    /** @test */
+    public function it_creates_records()
+    {
+        $this->markTestIncomplete('todo implement');
     }
 
     /** @test */
