@@ -24,5 +24,13 @@ interface Airtableable
 
     public function all(): Collection;
 
-    public function iterator(): Generator;
+    public function getIterator(): Generator;
+
+    public function maxRecords(int $size): self;
+
+    public function pageSize(int $size): self;
+
+    public function fields(array $fields): self;
+
+    public function sortBy(string $field, ?string $direction = 'asc'): self;
 }

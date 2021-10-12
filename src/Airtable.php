@@ -23,60 +23,42 @@ class Airtable implements Airtableable
 
     /**
      * The Airtable base Id
-     *
-     * @var string
      */
     protected string $base;
 
     /**
      * The Airtable table name
-     *
-     * @var string
      */
     protected string $table;
 
     /**
-     * The Airtable table view name
-     *
-     * @var string
-     */
-    protected string $view = 'Grid view';
-
-    /**
      * Delay in microseconds before calling the next records page
-     *
-     * @var int
      */
     protected int $page_delay = 200000;
 
     /**
      * Airtable api url
-     *
-     * @var string
      */
     private string $uri;
 
     /**
      * Airtable api key
-     *
-     * @var string
      */
     private string $key;
+
+    private Parameters $parameters;
 
     public function __construct(string $uri, string $key)
     {
         $this->parameters = new Parameters();
+        $this->parameters->view = 'Grid view';
+
         $this->uri = ! Str::of($uri)->endsWith('/') ? $uri . '/' : $uri;
         $this->key = $key;
     }
 
     /**
      * Define the base and the table
-     *
-     * @param string $base
-     * @param string $table
-     *
-     * @return LaravelAirtable
      */
     public function base(string $base): self
     {
@@ -87,10 +69,6 @@ class Airtable implements Airtableable
 
     /**
      * Set the current Airtable table name
-     *
-     * @param string $table
-     *
-     * @return Airtableable
      */
     public function table(string $table): self
     {
@@ -101,24 +79,16 @@ class Airtable implements Airtableable
 
     /**
      * Set the Airtable table view name
-     *
-     * @param string $view
-     *
-     * @return Airtableable
      */
     public function view(string $view): self
     {
-        $this->view = $view;
+        $this->parameters->view = $view;
 
         return $this;
     }
 
     /**
      * Set the time in microseconds to wait between two requests
-     *
-     * @param int $delay
-     *
-     * @return Airtableable
      */
     public function pageDelay(int $delay): self
     {
@@ -129,8 +99,6 @@ class Airtable implements Airtableable
 
     /**
      * List all records
-     *
-     * @return Collection
      *
      * @throws BindingResolutionException
      */
@@ -148,11 +116,9 @@ class Airtable implements Airtableable
     /**
      * Get an iterator of all the table records
      *
-     * @return Generator
-     *
      * @throws BindingResolutionException
      */
-    public function iterator(): Generator
+    public function getIterator(): Generator
     {
         foreach ($this->walk() as $record) {
             yield $record;
@@ -162,61 +128,63 @@ class Airtable implements Airtableable
     /**
      * Find one record
      *
-     * @param string $id
-     *
-     * @return stdClass
-     *
      * @throws BindingResolutionException
      */
     public function find(string $id): stdClass
     {
-        return (object) $this->request(self::GET, '/' . $id)->object();
+        return $this->request(self::GET, '/' . $id)
+            ->object();
     }
 
     /**
      * Create one or many records
-     *
-     * @param array $records up to ten records
-     *
-     * @return Generator
+     *  each record fields is contained in a "fields" attribute
      *
      * @throws BindingResolutionException
      */
     public function create(array $records): Generator
     {
-        $response = $this->request(self::POST, '', compact('records'))
-            ->object();
+        $chuncks = collect($records)
+            ->map(function ($item) {
+                if (! array_key_exists('fields', $item)) {
+                    return ['fields' => $item];
+                }
 
-        foreach ($response->records as $records) {
-            yield (object) $records;
+                return $item;
+            })
+            ->chunk(10);
+
+        foreach ($chuncks as $records) {
+            $response = $this->request(self::POST, '', compact('records'))
+                ->object();
+
+            foreach ($response->records as $records) {
+                yield (object) $records;
+            }
         }
     }
 
     /**
      * Update one or many records
      *
-     * @param array $records up to 10 records
-     *
-     * @return Generator
-     *
      * @throws BindingResolutionException
      */
     public function update(array $records): Generator
     {
-        $response = $this->request(self::PATCH, '', compact('records'))
-            ->object();
+        $chuncks = collect($records)->chunk(10);
 
-        foreach ($response->records as $records) {
-            yield (object) $records;
+        foreach ($chuncks as $records) {
+            $response = $this->request(self::PATCH, '', compact('records'))
+                ->object();
+
+            foreach ($response->records as $records) {
+                yield (object) $records;
+            }
         }
     }
 
     /**
      * Delete one or many records
-     *
-     * @param array $records
-     *
-     * @return Generator
      *
      * @throws BindingResolutionException
      */
@@ -227,24 +195,46 @@ class Airtable implements Airtableable
         }
     }
 
+    public function maxRecords(int $size): self
+    {
+        $this->parameters->setMaxRecords($size);
+
+        return $this;
+    }
+
+    public function pageSize(int $size): self
+    {
+        $this->parameters->setPageSize($size);
+
+        return $this;
+    }
+
+    public function fields(array $fields): self
+    {
+        $this->parameters->setFields($fields);
+
+        return $this;
+    }
+
+    public function sortBy(string $field, ?string $direction = 'asc'): self
+    {
+        $this->parameters->setSort($field, $direction);
+
+        return $this;
+    }
+
     /**
      * Walk over Airtable paginated responses and yield records
-     *
-     * @return Generator
      *
      * @throws BindingResolutionException
      */
     private function walk(): Generator
     {
-        $offset = false;
-        $view = $this->view;
+        $this->parameters->offset = false;
 
         do {
-            $response = ! $offset
-                ? $this->request(self::GET, '', compact('view'))
-                : $this->request(self::GET, '', compact('view', 'offset'));
-
-            $response = $response->object();
+            $response = $this->request(self::GET, '', $this->parameters->toArray())
+                ->object();
 
             if (isset($response->records)) {
                 foreach ($response->records as $record) {
@@ -253,22 +243,16 @@ class Airtable implements Airtableable
             }
 
             if (property_exists($response, 'offset')) {
-                $offset = $response->offset;
+                $this->parameters->setOffset($response->offset);
                 usleep($this->page_delay);
             } else {
-                $offset = false;
+                $this->parameters->setOffset(false);
             }
-        } while ($offset);
+        } while ($this->parameters->offset);
     }
 
     /**
      * Make the API request
-     *
-     * @param string $method
-     * @param string $endpoint
-     * @param array  $data
-     *
-     * @return Response
      *
      * @throws BindingResolutionException
      */
