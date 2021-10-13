@@ -151,7 +151,7 @@ class AirtableTest extends TestCase
     /** @test */
     public function when_update_method_is_called_it_yields_results()
     {
-        $records = $this->generateRecords(12);
+        $records = $this->generateUpdateRecords(12);
         $responseRecords = collect($records)
             ->chunk(10)
             ->toArray();
@@ -231,6 +231,16 @@ class AirtableTest extends TestCase
             'code' => $item['fields']['Code'],
             'name' => $item['fields']['Name'],
         ], $records);
+    }
+
+    protected function generateUpdateRecords(int $count): array
+    {
+        $return = array_fill(0, $count, null);
+
+        return array_map(
+            fn ($item) => $this->generateRecord(),
+            $return
+        );
     }
 
     protected function generateRecords(int $count): array

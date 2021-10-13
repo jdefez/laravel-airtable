@@ -6,6 +6,7 @@ use AxelDotDev\LaravelAirtable\Parameters\Parameters;
 use Generator;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -271,7 +272,15 @@ class Airtable implements Airtableable
         return collect($records)
             ->map(function ($item) {
                 if (!array_key_exists('fields', $item)) {
-                    return ['fields' => $item];
+                    $return = [
+                        'fields' =>  Arr::except($item, ['id']),
+                    ];
+
+                    if (array_key_exists('id', $item)) {
+                        $return['id'] = $item['id'];
+                    }
+
+                    return $return;
                 }
 
                 return $item;
