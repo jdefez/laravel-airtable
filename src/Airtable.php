@@ -13,6 +13,8 @@ use stdClass;
 
 class Airtable implements Airtableable
 {
+    const MAX_RECORDS = 10;
+
     public const GET = 'get';
 
     public const POST = 'post';
@@ -137,24 +139,14 @@ class Airtable implements Airtableable
     }
 
     /**
-     * Create one or many records
-     *  each record fields is contained in a "fields" attribute
+     * Create one or many records. Each record fields is contained in a
+     * "fields" attribute
      *
      * @throws BindingResolutionException
      */
     public function create(array $records): Generator
     {
-        $chuncks = collect($records)
-            ->map(function ($item) {
-                if (! array_key_exists('fields', $item)) {
-                    return ['fields' => $item];
-                }
-
-                return $item;
-            })
-            ->chunk(10);
-
-        foreach ($chuncks as $records) {
+        foreach ($this->chunckRecords($records) as $records) {
             $response = $this->request(self::POST, '', compact('records'))
                 ->object();
 
@@ -165,15 +157,14 @@ class Airtable implements Airtableable
     }
 
     /**
-     * Update one or many records
+     * Update one or many records. Each record fields is contained in a
+     * "fields" attribute
      *
      * @throws BindingResolutionException
      */
     public function update(array $records): Generator
     {
-        $chuncks = collect($records)->chunk(10);
-
-        foreach ($chuncks as $records) {
+        foreach ($this->chunckRecords($records) as $records) {
             $response = $this->request(self::PATCH, '', compact('records'))
                 ->object();
 
@@ -273,5 +264,18 @@ class Airtable implements Airtableable
     private function getUri(string $endpoint)
     {
         return $this->uri . $this->base . '/' . $this->table . $endpoint;
+    }
+
+    private function chunckRecords(array $records): Collection
+    {
+        return collect($records)
+            ->map(function ($item) {
+                if (!array_key_exists('fields', $item)) {
+                    return ['fields' => $item];
+                }
+
+                return $item;
+            })
+            ->chunk(self::MAX_RECORDS);
     }
 }
