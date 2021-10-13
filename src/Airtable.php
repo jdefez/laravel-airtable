@@ -14,7 +14,7 @@ use stdClass;
 
 class Airtable implements Airtableable
 {
-    const MAX_RECORDS = 10;
+    public const MAX_RECORDS = 10;
 
     public const GET = 'get';
 
@@ -280,14 +280,14 @@ class Airtable implements Airtableable
             $return = [
                 'fields' =>  Arr::except($item, ['id']),
             ];
-        
+
             if (array_key_exists('id', $item)) {
                 $return['id'] = $item['id'];
             }
-        
+
             return $return;
         }
-        
+
         return $item;
     }
 }
