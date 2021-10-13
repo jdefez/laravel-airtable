@@ -120,7 +120,7 @@ class AirtableTest extends TestCase
     }
 
     /** @test */
-    public function when_crate_method_is_called_with_more_than_10_records_it_returns_a_generator()
+    public function when_create_method_is_called_with_more_than_10_records_it_returns_a_generator()
     {
         $records = $this->generateRecords(12);
         $responseRecords = collect($records)
@@ -149,15 +149,68 @@ class AirtableTest extends TestCase
     }
 
     /** @test */
-    public function it_updates_records()
+    public function when_update_method_is_called_it_yields_results()
     {
-        $this->markTestIncomplete('todo implement');
+        $records = $this->generateRecords(12);
+        $responseRecords = collect($records)
+            ->chunk(10)
+            ->toArray();
+
+        Http::fake([
+            'https://api.airtable.com/v0/*' => Http::sequence()
+                ->push(['records' => $responseRecords[0]], 200)
+                ->push(['records' => $responseRecords[1]], 200)
+        ]);
+
+        $generator = $this->airtable->update($records);
+
+        $results = [];
+        foreach ($generator as $record) {
+            $results[] = [
+                'id' => $record->id,
+                'name' => $record->fields->Name,
+                'code' => $record->fields->Code,
+            ];
+        }
+
+        $this->assertEquals($this->getExpectedResultsFromRecords($records), $results);
+        $this->assertCount(count($records), $results);
     }
 
     /** @test */
-    public function it_deletes_records()
+    public function when_delete_method_is_called_it_yields_deleted_results()
     {
-        $this->markTestIncomplete('todo implement');
+        $records = $this->generateDeleteRecords(4);
+        $responseRecords = collect($records)
+            ->map(fn ($item) => [
+                (object) [
+                    'id' => $item,
+                    'deleted' => true,
+                ]])
+            ->toArray();
+
+        Http::fake([
+            'https://api.airtable.com/v0/*' => Http::sequence()
+                ->push(['records' => $responseRecords[0]], 200)
+                ->push(['records' => $responseRecords[1]], 200)
+                ->push(['records' => $responseRecords[2]], 200)
+                ->push(['records' => $responseRecords[3]], 200)
+        ]);
+
+        $generator = $this->airtable->delete($records);
+
+        $results = [];
+        foreach ($generator as $record) {
+            $results[] = [
+                'id' => $record->id,
+            ];
+        }
+
+        $this->assertEquals(
+            $this->getExpectedResultsFromDeletedRecords($records),
+            $results
+        );
+        $this->assertCount(count($records), $results);
     }
 
     protected function loadStub(string $filename): array
@@ -207,5 +260,25 @@ class AirtableTest extends TestCase
     protected function generateId()
     {
         return $this->faker->regexify('rec[A-Za-z0-9]{14}');
+    }
+
+    private function generateDeleteRecords(int $count)
+    {
+        $return = array_fill(0, $count, null);
+
+        return array_map(
+            fn ($item) => $this->generateId(),
+            $return
+        );
+    }
+
+    private function getExpectedResultsFromDeletedRecords(array $records)
+    {
+        return array_map(
+            fn ($item) => [
+                'id' => $item,
+            ],
+            $records
+        );
     }
 }

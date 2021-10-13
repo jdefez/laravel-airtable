@@ -191,7 +191,9 @@ class Airtable implements Airtableable
     public function delete(array $records): Generator
     {
         foreach ($records as $id) {
-            yield $this->request(self::DELETE, '/' . $id)->object();
+            $response = $this->request(self::DELETE, '/' . $id)->object();
+
+            yield $response->records[0];
         }
     }
 
