@@ -270,21 +270,24 @@ class Airtable implements Airtableable
     private function chunckRecords(array $records): Collection
     {
         return collect($records)
-            ->map(function ($item) {
-                if (!array_key_exists('fields', $item)) {
-                    $return = [
-                        'fields' =>  Arr::except($item, ['id']),
-                    ];
-
-                    if (array_key_exists('id', $item)) {
-                        $return['id'] = $item['id'];
-                    }
-
-                    return $return;
-                }
-
-                return $item;
-            })
+            ->map(fn ($item) => $this->setFieldsAttribute($item))
             ->chunk(self::MAX_RECORDS);
+    }
+
+    private function setFieldsAttribute($item): array
+    {
+        if (!array_key_exists('fields', $item)) {
+            $return = [
+                'fields' =>  Arr::except($item, ['id']),
+            ];
+        
+            if (array_key_exists('id', $item)) {
+                $return['id'] = $item['id'];
+            }
+        
+            return $return;
+        }
+        
+        return $item;
     }
 }
