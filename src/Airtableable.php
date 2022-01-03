@@ -2,9 +2,9 @@
 
 namespace AxelDotDev\LaravelAirtable;
 
+use AxelDotDev\LaravelAirtable\Records\Record;
 use Illuminate\Support\Collection;
 use Generator;
-use stdClass;
 
 interface Airtableable
 {
@@ -20,7 +20,7 @@ interface Airtableable
 
     public function base(string $base): Airtableable;
 
-    public function find(string $id): stdClass;
+    public function find(string $id): Record;
 
     public function all(): Collection;
 

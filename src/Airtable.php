@@ -3,6 +3,7 @@
 namespace AxelDotDev\LaravelAirtable;
 
 use AxelDotDev\LaravelAirtable\Parameters\Parameters;
+use AxelDotDev\LaravelAirtable\Records\Record;
 use Generator;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\Client\Response;
@@ -10,7 +11,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
-use stdClass;
 
 class Airtable implements Airtableable
 {
@@ -133,10 +133,11 @@ class Airtable implements Airtableable
      *
      * @throws BindingResolutionException
      */
-    public function find(string $id): stdClass
+    public function find(string $id): Record
     {
-        return $this->request(self::GET, '/' . $id)
-            ->object();
+        $record = $this->request(self::GET, '/' . $id)->object();
+
+        return new Record($record);
     }
 
     /**
@@ -151,8 +152,8 @@ class Airtable implements Airtableable
             $response = $this->request(self::POST, '', compact('records'))
                 ->object();
 
-            foreach ($response->records as $records) {
-                yield (object) $records;
+            foreach ($response->records as $record) {
+                yield new Record($record);
             }
         }
     }
@@ -169,8 +170,8 @@ class Airtable implements Airtableable
             $response = $this->request(self::PATCH, '', compact('records'))
                 ->object();
 
-            foreach ($response->records as $records) {
-                yield (object) $records;
+            foreach ($response->records as $record) {
+                yield new Record($record);
             }
         }
     }
@@ -184,8 +185,7 @@ class Airtable implements Airtableable
     {
         foreach ($records as $id) {
             $response = $this->request(self::DELETE, '/' . $id)->object();
-
-            yield $response->records[0];
+            yield new Record($response->records[0]);
         }
     }
 
