@@ -253,7 +253,7 @@ class Airtable implements Airtableable
     private function request(
         string $method,
         string $endpoint = '',
-        array $data = [],
+        ?array $data = [],
     ): Response {
         return Http::acceptJson()
             ->withHeaders(['Content-Type' => 'application/json'])
@@ -262,7 +262,7 @@ class Airtable implements Airtableable
             ->throw();
     }
 
-    private function getUri(string $endpoint)
+    private function getUri(string $endpoint): string
     {
         return $this->uri . $this->base . '/' . $this->table . $endpoint;
     }
@@ -270,11 +270,11 @@ class Airtable implements Airtableable
     private function chunckRecords(array $records): Collection
     {
         return collect($records)
-            ->map(fn ($item) => $this->setFieldsAttribute($item))
+            ->map(fn (array $item) => $this->setFieldsAttribute($item))
             ->chunk(self::MAX_RECORDS);
     }
 
-    private function setFieldsAttribute($item): array
+    private function setFieldsAttribute(array $item): array
     {
         if (!array_key_exists('fields', $item)) {
             $return = [

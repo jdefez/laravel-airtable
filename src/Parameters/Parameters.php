@@ -14,46 +14,46 @@ class Parameters
 
     public string $view = 'Grid view';
 
-    public ?string $offset = null;
+    public string|bool $offset = false;
 
     private ?array $sorters = null;
 
-    private function setSize(int $size)
+    private function setSize(int $size): int
     {
         return $size <= self::MAX ? $size : self::MAX;
     }
 
-    public function setMaxRecords(int $size)
+    public function setMaxRecords(int $size): void
     {
         $this->maxRecords = $this->setSize($size);
     }
 
-    public function setPageSize(int $size)
+    public function setPageSize(int $size): void
     {
         $this->pageSize = $this->setSize($size);
     }
 
-    public function setFields(array $fields)
+    public function setFields(array $fields): void
     {
         $this->fields = $fields;
     }
 
-    public function setSort(string $field, ?string $direction = 'asc')
+    public function setSort(string $field, ?string $direction = 'asc'): void
     {
         $this->sorters[] = new Sort($field, $direction);
     }
 
-    public function setOffset(string $offset)
+    public function setOffset(string|bool $offset): void
     {
         $this->offset = $offset;
     }
 
-    public function setView(string $view)
+    public function setView(string $view): void
     {
         $this->view = $view;
     }
 
-    private function getSorters(): ?string
+    private function getSorters(): ?array
     {
         if (empty($this->sorters)) {
             return null;
@@ -85,8 +85,10 @@ class Parameters
             fn ($item) => !empty($item)
         );
 
-        if (! empty($return)) {
-            return $return;
+        if (empty($return)) {
+            return null;
         }
+
+        return $return;
     }
 }

@@ -2,8 +2,6 @@
 
 namespace AxelDotDev\LaravelAirtable\Parameters;
 
-use InvalidArgumentException;
-
 class Sort
 {
     // returned
@@ -12,12 +10,14 @@ class Sort
 
     public string $field;
 
-    public string $direction;
+    public string $direction = 'asc';
 
-    public function __construct(string $field, string $direction = 'asc')
+    public function __construct(string $field, ?string $direction)
     {
-        if ( ! in_array($direction, ['desc', 'asc'])) {
-            throw new InvalidArgumentException('direction must be `desc` or `asc`');
+        if (! $direction ||
+            ! in_array($direction, ['desc', 'asc'])
+        ) {
+            $direction = 'asc';
         }
 
         $this->direction = $direction;
